@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(layout="wide")
 
 #元データの処理
-df = pd.read_csv('/Users/suzukifumiya/Desktop/Python_advanced/stats.csv',encoding='UTF-8')
+df = pd.read_csv('stats.csv',encoding='UTF-8')
 df = df.rename(columns={' first_name': 'first_name'})
 df["first_name"]= df["first_name"].str.replace(' ', '')
 df.insert(0,'full_name',df['first_name'].str.cat(df['last_name'],sep=' '))
