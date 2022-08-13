@@ -69,7 +69,7 @@ if agree:
     df_year_KeyItem_More_startingp_rank = pd.concat([df_year_startingp,df_year_rank],axis=1)
     df_year_KeyItem_More_startingp_rank = df_year_KeyItem_More_startingp_rank.loc[:, ["p_win","p_era","p_strikeout","K9","WHIP","KBB","PIP","fastball_avg_speed","ranking_point","p_win_rank","p_era_rank","p_strikeout_rank","K9_rank","WHIP_rank","KBB_rank","PIP_rank","fb_avg_speed_rank","ranking_point_rank"]]
     #DF5 選択投手とトップランカーの結合
-    df_selected_player = df_year_KeyItem_More_startingp_rank.loc[player_name]
+    df_selected_player = df_year_KeyItem_More_startingp_rank.loc[[player_name]]
     ranking_point_top = df_year_KeyItem_More_startingp_rank[['ranking_point']].sort_values(by='ranking_point',ascending=True).head(1)
     ranking_point_top = ranking_point_top.index.astype(str)
     Top_ranker = df_year_KeyItem_More_startingp_rank.loc[ranking_point_top]
@@ -203,7 +203,7 @@ else:
     df_year_KeyItem_More_startingp_rank = df_year_KeyItem_More_startingp_rank.loc[:, ["p_win","p_era","p_strikeout","K9","WHIP","KBB","PIP","fastball_avg_speed","ranking_point","p_win_rank","p_era_rank","p_strikeout_rank","K9_rank","WHIP_rank","KBB_rank","PIP_rank","fb_avg_speed_rank","ranking_point_rank"]]
     #DF5 選択投手とトップランカーの結合
     if player:
-        df_selected_player = df_year_KeyItem_More_startingp_rank.loc[player_name]
+        df_selected_player = df_year_KeyItem_More_startingp_rank.loc[[player_name]]
         ranking_point_top = df_year_KeyItem_More_startingp_rank[['ranking_point']].sort_values(by='ranking_point',ascending=True).head(1)
         ranking_point_top = ranking_point_top.index.astype(str)
         Top_ranker = df_year_KeyItem_More_startingp_rank.loc[ranking_point_top]
