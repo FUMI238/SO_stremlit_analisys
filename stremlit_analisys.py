@@ -10,7 +10,6 @@ st.set_page_config(layout="wide")
 #元データの処理
 url = 'https://baseballsavant.mlb.com/leaderboard/custom?year=2022,2021&type=pitcher&filter=&sort=13&sortDir=desc&min=10&selections=player_age,p_game,p_formatted_ip,p_total_hits,p_strikeout,p_walk,batting_avg,p_win,p_era,p_quality_start,p_starting_p,pitch_count,pitch_hand,n_ff_formatted,ff_avg_speed,ff_avg_spin,n_sl_formatted,sl_avg_speed,sl_avg_spin,n_ch_formatted,ch_avg_speed,ch_avg_spin,n_cukc_formatted,cu_avg_speed,cu_avg_spin,n_sift_formatted,si_avg_speed,si_avg_spin,n_fc_formatted,fc_avg_speed,fc_avg_spin,n_fs_formatted,fs_avg_speed,fs_avg_spin,n_kn_formatted,kn_avg_speed,kn_avg_spin,&chart=false&x=player_age&y=player_age&r=no&chartType=beeswarm&csv=true'
 df = pd.read_csv(url,encoding='UTF-8')
-df = pd.read_csv('stats.csv',encoding='UTF-8')
 df = df.rename(columns={' first_name': 'first_name'})
 df["first_name"]= df["first_name"].str.replace(' ', '')
 df.insert(0,'full_name',df['first_name'].str.cat(df['last_name'],sep=' '))
@@ -312,89 +311,3 @@ else:
         plt.legend()
         right_column.pyplot(fig)
     else:st.write('選手詳細を確認したい場合、大谷翔平ボックスにチェック、他の選手の場合は選択して下さい')
-#altairのチャート表示/Horizontal stacked bar chart
-    target = df_year_KeyItem_More_startingp_rank[[rank_item]].sort_values(by=rank_item,ascending=first_sort).head(5)
-    target = target.reset_index()
-    #altairに適用させるため、indexからカラムに変更しY軸として利用
-    data = alt.Chart(target).mark_bar().encode(
-        x=alt.X(rank_item,sort = None),
-        y=alt.Y('full_name',axis=alt.Axis(title=None),sort = None)
-        )#sort=Noneとしないと何故かチャートが反映しない/以下の構文は本来st.altair_chart(data, use_container_width=True)
-    if (i+1)%3 == 1:left_column.altair_chart(data, use_container_width=True)
-    elif (i+1)%3 == 2:center_column.altair_chart(data, use_container_width=True)
-    else:right_column.altair_chart(data, use_container_width=True)
-
-#streamlitのDataFrame用
-df_data = df_selected_player_ranker[["p_win","p_era","p_strikeout","K9","WHIP","KBB","PIP","fastball_avg_speed","ranking_point"]]
-df_rank = df_selected_player_ranker[["p_win_rank","p_era_rank","p_strikeout_rank","K9_rank","WHIP_rank","KBB_rank","PIP_rank","fb_avg_speed_rank","ranking_point_rank"]]
-for Topranker in Top_ranker.index.astype(str):
-    Topranker_name = Topranker
-
-st.sidebar.write(player_name +'と'+ Topranker_name + '項目比較')
-df_data = df_data.transpose()
-st.sidebar.table(df_data.style.format('{:.1f}'))
-st.sidebar.write(player_name +'と'+ Topranker_name + 'ランク比較')
-df_rank = df_rank.transpose()
-st.sidebar.table(df_rank)
-
-left_column,right_column = st.columns(2)
-
-left_column.write(player_name + "　詳細")
-right_column.write(Topranker_name + "　詳細")
-#DF6　円グラフ用データの処理(plotlyで作成)
-pi_num_items = ["n_ff_formatted","n_sl_formatted","n_ch_formatted","n_cukc_formatted","n_sift_formatted","n_fc_formatted","n_fs_formatted","n_kn_formatted"]
-df_pi_num = df_year_startingp[pi_num_items]
-
-pi_ratio1 = []
-for ratio in df_pi_num.loc[player].iloc[0]:#multiselectで返されるとリストの形になるので、locでDFの形から→ilocでシリーズの形に変換して取り出す
-    pi_ratio1.append(ratio)
-fig1 = px.pie(df_pi_num, values=pi_ratio1,names = pi_num_items,title='pitch ratio')
-fig1.update_traces(textposition='inside', textinfo='percent+label')
-left_column.plotly_chart(fig1, use_container_width=True)
-
-pi_ratio2 = []
-for ratio in df_pi_num.loc[Topranker]:
-    pi_ratio2.append(ratio)
-fig2 = px.pie(df_pi_num, values=pi_ratio2,names = pi_num_items,title='pitch ratio')
-fig2.update_traces(textposition='inside', textinfo='percent+label')
-right_column.plotly_chart(fig2, use_container_width=True)
-
-#DF7 matplotlibで処理
-pi_speed_items = ["ff_avg_speed","sl_avg_speed","ch_avg_speed","cu_avg_speed","si_avg_speed","fc_avg_speed","fs_avg_speed","kn_avg_speed"]
-pi_spin_items = ["ff_avg_spin","sl_avg_spin","ch_avg_spin","cu_avg_spin","si_avg_spin","fc_avg_spin","fs_avg_spin","kn_avg_spin"]
-df_pi_speed =df_year_startingp[pi_speed_items]
-df_pi_spin =df_year_startingp[pi_spin_items]
-
-#avarage_speed
-fig = plt.figure(figsize=(10,6))
-plt.barh(pi_speed_items,df_pi_speed.loc[player].iloc[0])
-plt.xlabel('avarage_speed',fontsize=18)
-plt.tick_params(labelsize=10)
-plt.tight_layout()
-plt.legend()
-left_column.pyplot(fig)
-
-fig = plt.figure(figsize=(10,6))
-plt.barh(pi_speed_items,df_pi_speed.loc[Topranker])
-plt.xlabel('avarage_speed',fontsize=18)
-plt.tick_params(labelsize=10)
-plt.tight_layout()
-plt.legend()
-right_column.pyplot(fig)
-
-#avarage_spin
-fig = plt.figure(figsize=(10,6))
-plt.barh(pi_speed_items,df_pi_spin.loc[player].iloc[0])
-plt.xlabel('avarage_spin',fontsize=18)
-plt.tick_params(labelsize=10)
-plt.tight_layout()
-plt.legend()
-left_column.pyplot(fig)
-
-fig = plt.figure(figsize=(10,6))
-plt.barh(pi_spin_items,df_pi_spin.loc[Topranker])
-plt.xlabel('avarage_spin',fontsize=18)
-plt.tick_params(labelsize=10)
-plt.tight_layout()
-plt.legend()
-right_column.pyplot(fig)
